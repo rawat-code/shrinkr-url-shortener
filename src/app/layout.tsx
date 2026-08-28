@@ -17,7 +17,11 @@ export const metadata: Metadata = {
   description: "A fast, focused URL shortener for teams that care about the details.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"
