@@ -18,7 +18,12 @@ export function validateAlias(value: unknown): string | undefined {
   return value.toLowerCase();
 }
 
-export function generateCode(length = Number(process.env.URL_CODE_LENGTH ?? 7)): string {
+function getCodeLength(): number {
+  const configuredLength = Number(process.env.URL_CODE_LENGTH);
+  return Number.isInteger(configuredLength) && configuredLength >= 4 && configuredLength <= 32 ? configuredLength : 7;
+}
+
+export function generateCode(length = getCodeLength()): string {
   const bytes = randomBytes(length); return Array.from(bytes, (byte) => ALPHABET[byte % ALPHABET.length]).join("");
 }
 
