@@ -5,8 +5,9 @@ export const RESERVED_ALIASES = new Set(["api", "admin", "dashboard", "login", "
 
 export function validateUrl(value: unknown): string {
   if (typeof value !== "string" || value.trim().length === 0) throw new Error("Enter a URL to shorten.");
+  const input = value.trim();
   let parsed: URL;
-  try { parsed = new URL(value.trim()); } catch { throw new Error("Enter a valid URL, including https://."); }
+  try { parsed = new URL(/^[a-z][a-z\d+.-]*:\/\//i.test(input) ? input : `https://${input}`); } catch { throw new Error("Enter a valid URL."); }
   if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Only http and https links are supported.");
   return parsed.toString();
 }
@@ -22,7 +23,9 @@ export function generateCode(length = Number(process.env.URL_CODE_LENGTH ?? 7)):
 }
 
 export type ShortUrl = { id: string; shortCode: string; originalUrl: string; createdAt: string; clicks: number; isActive: boolean; expiresAt: string | null };
-const urls = new Map<string, ShortUrl>();
+declare global { var __shrinkrUrls: Map<string, ShortUrl> | undefined; }
+const urls = globalThis.__shrinkrUrls ?? new Map<string, ShortUrl>();
+globalThis.__shrinkrUrls = urls;
 export function createShortUrl(originalUrl: string, alias?: string): ShortUrl {
   const shortCode = alias ?? generateCode();
   if (urls.has(shortCode)) throw new Error("That alias is already in use.");
